@@ -11,13 +11,28 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build with Buildozer
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Accept Android SDK licenses
+        run: |
+          mkdir -p "$HOME/.android"
+          echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" > "$HOME/.android/repositories.cfg"
+          yes | sdkmanager --licenses || true
+
+      - name: Build APK
         uses: Digreatbrian/buildozer-action@v1
         with:
           buildozer_version: stable
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: CryptaGen-APK
-          path: bin/*.apk
+          path: |
+            bin/*.apk
+            bin/*.aab
